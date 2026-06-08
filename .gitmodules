@@ -1,0 +1,4 @@
+[submodule "awardsreport/awardsreport"]
+	path = awardsreport/awardsreport
+	url = git@github.com:govex/awardsreport.git
+	branch = govex-stable
