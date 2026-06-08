@@ -54,14 +54,13 @@ latlong_nas_2 |>
 # Google Maps API key — set GOOGLE_MAPS_KEY in .env
 ggmap::register_google(key = Sys.getenv("GOOGLE_MAPS_KEY"), write = TRUE)
 
-latlong_3 <-  
-  city_trans_addys |>  
-  dplyr::filter(phys_address_01 %in% latlong_nas_2$phys_address_01) |>  
+latlong_3 <-
+  city_trans_addys |>
+  dplyr::filter(phys_address_01 %in% latlong_nas_2$phys_address_01) |>
   dplyr::mutate(full_address = paste0(phys_address_01, ", ",
-                               phys_address_city, ", ", 
-                               phys_address_city, ", ", 
-                               phys_address_st, ", ", 
-                               phys_address_ZIP)) |>  
+                               phys_address_city, ", ",
+                               phys_address_st, ", ",
+                               phys_address_ZIP)) |>
   ggmap::mutate_geocode(full_address) |>  
   dplyr::rename(long = lon)
 
@@ -85,6 +84,6 @@ latlong <-
   dplyr::bind_rows(latlong_3 |>              
               filter(!is.na(lat))) |>  
   dplyr::filter(phys_address_country == "USA") |>  
-  dplyr::across()select(-c("full_address"))        
+  dplyr::select(-c("full_address"))
 
-readr::write_csv(latlong, "../data-processed/latlong_240312.csv")
+readr::write_csv(latlong, cached_latlong)

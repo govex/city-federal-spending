@@ -115,26 +115,22 @@ trans.unq_ueis.2A_zips |>
 # Nominatim, Geocodio, and Google. The first two are free, Google is not
 # (requires a Google Maps API key set in GOOGLE_MAPS_KEY env var).
 
-# These geocodes were saved after running this to prevent additional 
-# hour-long periods of waiting. 
+# Geocoded addresses are cached in latlong.csv and updated incrementally on
+# every run — any addresses in the current SAM.gov file not already in the
+# cache are geocoded with Google and appended. The full three-pass geocoder
+# (spending-geocode.R) only runs when no cache exists at all (first-time setup).
 
-# Path to cached geocode results
-cached_latlong <- "./data-processed/latlong_240528.csv"
+cached_latlong <- "./data-processed/latlong.csv"
 
-# Default: skip full geocoding if cached results already exist.
-# Set run_geocoding <- TRUE to force a full re-run (Nominatim → Geocodio →
-# Google, ~1 hour). Only needed when adding new cities or swapping SAM.gov file.
-run_geocoding <- !file.exists(cached_latlong)
-
-if (run_geocoding) {
+if (!file.exists(cached_latlong)) {
   source("./r-delivery/spending-geocode.R")
 }
 
-# Load saved coords for geocoded recipient addresses
+# Load cached geocoded addresses
 recip_coords_city_zip_trans <-
   readr::read_csv(cached_latlong)
 
-# Check for any new addresses not yet in the cached geocodes
+# Check for any addresses in the current SAM.gov file not yet in the cache
 addy_updates <-
   city_trans_addys |>
   dplyr::filter(!full_addy %in% recip_coords_city_zip_trans$full_addy)
@@ -151,7 +147,6 @@ if (length(addy_updates$full_addy) > 0) {
   addy_updates_coords <-
     addy_updates |>
     dplyr::mutate(full_address = paste0(phys_address_01, ", ",
-                                        phys_address_city, ", ",
                                         phys_address_city, ", ",
                                         phys_address_st, ", ",
                                         phys_address_ZIP)) |>

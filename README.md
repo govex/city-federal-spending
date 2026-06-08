@@ -84,15 +84,19 @@ Repeat the seed step for each year before running the R pipeline.
 
 ### Required Input Files
 
-Two inputs must be in place before running the pipeline. Neither is downloaded automatically.
+Three inputs must be in place before running the pipeline. None are downloaded automatically.
 
-**1. City boundary GeoJSON files** (`city_places_sf` in config)
+**1. SAM.gov entity registry** (`data-raw/SAM_PUBLIC_UTF-8_MONTHLY_V2_*.txt`)
 
-One `.geojson` file per city. The path is configured via `path_geojson` in `spending-config.R`. If adding a new city, its boundary file must be present before running.
+Download the latest monthly Public V2 extract from [sam.gov](https://sam.gov/data-services/Entity%20Registration/Public%20V2?privacy=Public) (requires a SAM.gov account). Place the file in `data-raw/` and update `file_sam_gov` in `spending-config.R` to match the filename. Column positions are identified using the [SAM.gov data dictionary](https://falextracts.s3.amazonaws.com/Data%20Dictionary/Entity%20Information/NOV_2023_Data_Dictionary.pdf).
 
-**2. Geocoded recipient coordinates** (`data-processed/latlong_240528.csv`)
+**2. City boundary GeoJSON files** (`city_places_sf` in config)
 
-Lat/long coordinates for all SAM.gov-registered government entity addresses within the pipeline's city ZCTAs. Pre-computed and saved in the repo. Only needs to be regenerated when new cities or a new SAM.gov registry file are introduced (see `spending-geocode.R`).
+One `.geojson` file per city. The path is configured via `path_geojson` in `spending-config.R`. Files for the current city list are included in `data-raw/geojson/places/`. If adding a new city, its boundary file must be present before running.
+
+**3. Geocoded recipient coordinates** (`data-processed/latlong.csv`)
+
+Lat/long coordinates for SAM.gov-registered government entity addresses within the pipeline's city ZCTAs. A baseline is included in the repo. On every run, any addresses in the current SAM.gov file not already in the cache are geocoded with Google and appended automatically — the cache grows over time. The full three-pass geocoder (`spending-geocode.R`) only runs when no cache file exists at all.
 
 ## Quick Start
 

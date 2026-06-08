@@ -52,7 +52,7 @@ city-federal-spending/
 
 1. **[SAM.gov entity registration file](https://sam.gov/data-services/Entity%20Registration/Public%20V2?privacy=Public)**
    - Contains all entities registered with SAM.gov, which defines the UEI (unique entity identifier) of each recipient — the key used to link geographies and spending data.
-   - A local copy from March 2024 is saved at `./data-raw/SAM_PUBLIC_UTF-8_MONTHLY_V2_20240303.txt` and was used in the most recent production run.
+   - Download the latest monthly Public V2 extract from SAM.gov (requires a SAM.gov account). Place in `./data-raw/` and update `file_sam_gov` in `spending-config.R`.
 
 2. **[ZCTA5 to Incorporated Places Crosswalk](https://www.census.gov/geographies/reference-files/time-series/geo/relationship-files.2020.html#zcta)**
    - Updated with each census release, this file contains all ZCTA5 codes that intersect Census Places.
@@ -383,7 +383,7 @@ city_zcta_data |>
 
 #### Import SAM.gov entity data
 
-The SAM.gov entity registration file links recipient UEIs in the transactions data to physical addresses. Located at `./data-raw/SAM_PUBLIC_UTF-8_MONTHLY_V2_20240303.txt`. A [data dictionary](https://falextracts.s3.amazonaws.com/Data%20Dictionary/Entity%20Information/NOV_2023_Data_Dictionary.pdf) was used to identify column positions.
+The SAM.gov entity registration file links recipient UEIs in the transactions data to physical addresses. Download and place in `./data-raw/`, then set `file_sam_gov` in `spending-config.R`. A [data dictionary](https://falextracts.s3.amazonaws.com/Data%20Dictionary/Entity%20Information/NOV_2023_Data_Dictionary.pdf) was used to identify column positions.
 
 > **Note:** SAM.gov data is updated monthly. It is recommended to download the latest version when collecting new transaction data.
 

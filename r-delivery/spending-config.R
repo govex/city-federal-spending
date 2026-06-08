@@ -24,50 +24,53 @@ library(geojsonsf)
 # USA Spending to define the UEI (unique entity identifier) of each recipient,
 # which is the key we will use to link physical addresses and spending data.
 
-# The registry can be downloaded from [sam.gov](https://sam.gov/data-services/Entity%20Registration/Public%20V2?privacy=Public)
+# Download the latest monthly Public V2 extract from:
+# https://sam.gov/data-services/Entity%20Registration/Public%20V2?privacy=Public
+# Place the file in ./data-raw/ and update file_sam_gov below.
 
-# A local copy from March 2024 has been saved in the repo at
-# ./data-raw/SAM_PUBLIC_UTF-8_MONTHLY_V2_20240303.txt
-# and was used in the most recent production of spending data.
+# Column positions were identified using the SAM.gov data dictionary:
+# https://falextracts.s3.amazonaws.com/Data%20Dictionary/Entity%20Information/NOV_2023_Data_Dictionary.pdf
 
-# The following dictionary was used to link columns with their respective names
-# ./data-helpers/Nov 2023 Data Dictionary.pdf
-# and was originally downloaded from [this PDF I found](https://falextracts.s3.amazonaws.com/Data%20Dictionary/Entity%20Information/NOV_2023_Data_Dictionary.pdf)
+file_sam_gov <- c("./data-raw/SAM_PUBLIC_UTF-8_MONTHLY_V2_20240303.txt")
 
-# Set path to sam.gov entity registry as of March 03, 2024
-#file_sam_gov <- c("./data-raw/SAM_PUBLIC_UTF-8_MONTHLY_V2_20240303.txt")
+sam_gov <-
+  readr::read_delim(file_sam_gov,
+                    delim = "|",
+                    col_names = FALSE) |>
+  dplyr::select(c("X1","X4","X12","X13","X16","X17","X18","X19","X20","X21","X22",
+                  "X23","X27","X28","X31","X32","X33","X34","X35","X36","X37")) |>
+  dplyr::rename(recipient_uei = X1,
+                recipient_CAGE = X4,
+                recipient_name = X12,
+                recipient_dba = X13,
+                phys_address_01 = X16,
+                phys_address_02 = X17,
+                phys_address_city = X18,
+                phys_address_st = X19,
+                phys_address_ZIP = X20,
+                phys_address_ZIP2 = X21,
+                phys_address_country = X22,
+                phys_address_cong_dist = X23,
+                recipient_url = X27,
+                entity_structure = X28,
+                bus_type_counter = X31,
+                bus_type_string = X32,
+                primary_NAICS = X33,
+                NAICS_code_counter = X34,
+                NAICS_code_string = X35,
+                PSC_code_counter = X36,
+                PSC_code_string = X37)
 
-# Import chosen columns from entity registry
-#sam_gov <-
-#  readr::read_delim(file_sam_gov,
-#                    delim = "|",
-#                    col_names = FALSE) |>
-#  select(c("X1","X4","X12","X13","X16","X17","X18","X19","X20","X21","X22",
-#           "X23","X27","X28","X31","X32","X33","X34","X35","X36","X37")) |>
-#  rename(recipient_uei = X1,
-#         recipient_CAGE = X4,
-#         recipient_name = X12,
-#         recipient_dba = X13,
-#        phys_address_01 = X16,
-#         phys_address_02 = X17,
-#         phys_address_city = X18,
-#         phys_address_st = X19,
-#         phys_address_ZIP = X20,
-#         phys_address_ZIP2 = X21,
-#         phys_address_country = X22,
-#        phys_address_cong_dist = X23,
-#        recipient_url = X27,
-#         entity_structure = X28,
-#        bus_type_counter = X31,
-#        bus_type_string = X32,
-#        primary_NAICS = X33,
-#         NAICS_code_counter = X34,
-#         NAICS_code_string = X35,
-#         PSC_code_counter = X36,
-#         PSC_code_string = X37
-#  )
-
-sam_gov <- read_csv("./data-raw/sam_gov_0524_parsed_selected_renamed.csv")
+# Validate column mapping — if SAM.gov changes column order these will fail
+# loudly rather than letting wrong data flow through silently.
+stopifnot(
+  "recipient_uei does not look like UEIs (12 alphanumeric chars) — check column positions" =
+    all(grepl("^[A-Z0-9]{12}$", na.omit(sam_gov$recipient_uei))),
+  "entity_structure contains unexpected values — check column positions" =
+    all(sam_gov$entity_structure %in% c("2A", "2F", "2R", "3I", "CY", "8H", "2L", NA)),
+  "phys_address_st values are not 2-character state codes — check column positions" =
+    all(nchar(na.omit(sam_gov$phys_address_st)) == 2)
+)
 
 ### 2020 ZCTA to Incorporated Place Crosswalk ================================
 

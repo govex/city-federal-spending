@@ -57,8 +57,8 @@ cross_uei_place <-
   inner_join(city_places |> 
                distinct(city_label, .keep_all = TRUE) |>
                select(-c(city, state_code, state)), 
-             by = join_by(city_label)) 
-  distinct(recipient_uei, .keep_all = TRUE)
+             by = join_by(city_label)) |>
+  dplyr::distinct(recipient_uei, .keep_all = TRUE)
 
 # Combine transaction data with recipient location city_labels and Define 
 # Fiscal Years 
