@@ -117,14 +117,10 @@ trans.unq_ueis.2A_zips |>
 
 # Geocoded addresses are cached in latlong.csv and updated incrementally on
 # every run — any addresses in the current SAM.gov file not already in the
-# cache are geocoded with Google and appended. The full three-pass geocoder
-# (spending-geocode.R) only runs when no cache exists at all (first-time setup).
+# cache are geocoded with Google and appended.
+# To rebuild the cache from scratch, run spending-geocode.R manually.
 
 cached_latlong <- "./data-processed/latlong.csv"
-
-if (!file.exists(cached_latlong)) {
-  source("./r-delivery/spending-geocode.R")
-}
 
 # Load cached geocoded addresses
 recip_coords_city_zip_trans <-

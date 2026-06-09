@@ -1,5 +1,10 @@
 # Title: City Federal Spending - Address Geocoding
-# Description:
+# Description: Standalone script to rebuild the geocode cache (latlong.csv)
+#   from scratch using a three-pass approach (Nominatim → Geocodio → Google).
+#   Run this manually only if you need to regenerate the cache entirely.
+#   Normal pipeline runs handle new addresses incrementally via spending-recipient_id.R.
+#   Requires: city_trans_addys and cached_latlong to be defined (run after spending-config.R
+#   and spending-recipient_id.R up to the geocoding section).
 # Author: Derek Crowe
 # Last Edited: 3/29/24
 

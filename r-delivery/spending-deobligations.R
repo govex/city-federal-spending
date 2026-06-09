@@ -5,24 +5,35 @@
 
 
 # First we're going to capture all award keys that contain deobligations
-award_keys_deobs_all <- 
-  city_trans_filtered |> 
+award_keys_deobs_all <-
+  city_trans_filtered |>
   dplyr::filter(federal_action_obligation < 0) |>
   dplyr::distinct(award_summary_unique_key)
 
 #15,423 unique awards with at least one deobligation
 
-# Next we'll identify all awards that contain exclusively deobligations 
-award_keys_deobs_without_obs <- 
+# Capture all awards that have both obligations and deobligations
+award_keys_deobs_with_obs <-
+  city_trans_filtered |>
+  dplyr::filter(award_summary_unique_key %in%
+                  award_keys_deobs_all$award_summary_unique_key) |>
+  dplyr::filter(federal_action_obligation > 0) |>
+  dplyr::distinct(award_summary_unique_key, .keep_all = TRUE) |>
+  dplyr::select(award_summary_unique_key)
+
+# 11,412 unique awards with deobligations that have at least one obligation
+
+# Next we'll identify all awards that contain exclusively deobligations
+award_keys_deobs_without_obs <-
   award_keys_deobs_all |>
-  dplyr::filter(!award_summary_unique_key %in% 
+  dplyr::filter(!award_summary_unique_key %in%
                   award_keys_deobs_with_obs$award_summary_unique_key)
 
 # 4,011 unique awards with deobligations that have no obligations
 
 # We'll now count the number of years these awards span since 2017
 n_years_deobs_no_ob <- 
-  city_trans_sam.12.ex.pb.pp |>
+  city_trans_filtered |>
   dplyr::filter(award_summary_unique_key %in% 
                   award_keys_deobs_without_obs$award_summary_unique_key) |>
   dplyr::group_by(award_summary_unique_key, city_label) |>
@@ -34,7 +45,7 @@ n_years_deobs_no_ob <-
 # We will now calculate the total amount to subtract from each year for each 
 # city for awards which contain exclusively deobligations
 deob_without_ob_sub_per_year <-
-  city_trans_sam.12.ex.pb.pp |>
+  city_trans_filtered |>
   dplyr::filter(award_summary_unique_key %in% 
                   award_keys_deobs_without_obs$award_summary_unique_key) |>
   dplyr::group_by(award_summary_unique_key) |>
@@ -55,21 +66,9 @@ deob_without_ob_sub_per_year <-
   dplyr::summarize(sub_deob_per_year.sum = sum(sub_deob_per_year)) 
 
 
-# Now we'll capture all the awards that have both obligations and deobligations
-award_keys_deobs_with_obs <-   
-  city_trans_sam.12.ex.pb.pp |>
-  dplyr::filter(award_summary_unique_key %in% 
-                  award_keys_deobs_all$award_summary_unique_key) |>
-  dplyr::filter(federal_action_obligation > 0) |>
-  dplyr::distinct(award_summary_unique_key, .keep_all = TRUE) |>
-  dplyr::select(award_summary_unique_key) 
-
-# 11,412 unique awards with deobligations that have at least one obligation
-
-
 # Next we'll find all the years over which to spread deobligations 
 n_years_obs_deobs_ob <- 
-  city_trans_sam.12.ex.pb.pp |>
+  city_trans_filtered |>
   dplyr::filter(award_summary_unique_key %in% 
                   award_keys_deobs_with_obs$award_summary_unique_key) |>
   dplyr::arrange(award_summary_unique_key) |>
@@ -82,7 +81,7 @@ n_years_obs_deobs_ob <-
 
 # And calculate the amount to deduct from each year of obligations
 award_sub.per_year.deobs_with_obs <- 
-  city_trans_sam.12.ex.pb.pp |>
+  city_trans_filtered |>
   #transactions with awards that have deobs with obs
   dplyr::filter(award_summary_unique_key %in% 
                   award_keys_deobs_with_obs$award_summary_unique_key) |> 
@@ -99,7 +98,7 @@ award_sub.per_year.deobs_with_obs <-
 
 # Next, we'll sum the total spending number for all awards that have deobs & obs
 deob_with_ob_total_per_year <-
-  city_trans_sam.12.ex.pb.pp |>
+  city_trans_filtered |>
   #transactions with awards that have deobs with obs
   dplyr::filter(award_summary_unique_key %in% 
                   award_keys_deobs_with_obs$award_summary_unique_key) |> 
@@ -127,7 +126,7 @@ deob_with_ob_total_per_year <-
 # for awards with obligations and deobligations, and the sum total of spending 
 # for awards with only deobligations
 sum_obs <- 
-  city_trans_sam.12.ex.pb.pp |>
+  city_trans_filtered |>
   dplyr::filter(!award_summary_unique_key %in% 
                   award_keys_deobs_all$award_summary_unique_key) |>
   dplyr::group_by(city_label, FY) |>

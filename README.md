@@ -96,7 +96,7 @@ One `.geojson` file per city. The path is configured via `path_geojson` in `spen
 
 **3. Geocoded recipient coordinates** (`data-processed/latlong.csv`)
 
-Lat/long coordinates for SAM.gov-registered government entity addresses within the pipeline's city ZCTAs. A baseline is included in the repo. On every run, any addresses in the current SAM.gov file not already in the cache are geocoded with Google and appended automatically — the cache grows over time. The full three-pass geocoder (`spending-geocode.R`) only runs when no cache file exists at all.
+Lat/long coordinates for SAM.gov-registered government entity addresses within the pipeline's city ZCTAs. A baseline is included in the repo. On every run, any addresses in the current SAM.gov file not already in the cache are geocoded with Google and appended automatically — the cache grows over time. To rebuild the cache from scratch, run `spending-geocode.R` manually.
 
 ## Quick Start
 
